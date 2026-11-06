@@ -1,0 +1,6 @@
+{
+  "name": "GuruKu - Portal Manajemen Guru",
+  "description": "Aplikasi website modern manajemen akademik, siswa, nilai, absensi, dan jurnal mengajar guru dengan Sneat Bootstrap Admin Dashboard & Supabase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
