@@ -1,0 +1,44 @@
+name: Deploy GuruKu to VPS (aaPanel / Nginx)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy-vps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Production Bundle
+        env:
+          VITE_BASE_PATH: /
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      # Opsional: Jika menggunakan deployment otomatis via SSH ke VPS aaPanel
+      # Konfigurasikan secret di GitHub: VPS_HOST, VPS_USER, VPS_SSH_KEY, VPS_TARGET_PATH
+      - name: Deploy to VPS aaPanel via SSH
+        if: "${{ secrets.VPS_HOST != '' && secrets.VPS_SSH_KEY != '' }}"
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.VPS_HOST }}
+          REMOTE_USER: ${{ secrets.VPS_USER || 'root' }}
+          TARGET: ${{ secrets.VPS_TARGET_PATH || '/www/wwwroot/guruku.sch.id' }}
+          SOURCE: "dist/"
+          ARGS: "-rltgoDzvO --delete"
